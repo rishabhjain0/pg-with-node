@@ -5,15 +5,16 @@ export default function AddColumn() {
 
     const { tableName } = useParams();
     const [columnNames, setColumnNames] = useState();
-    const [inpData, setInpData] = useState({
-        tableName: tableName,
-        data: {
-            colName: "",
-            dataType: "",
-            required: "",
-            primarykey: "",
-        }
-    });
+    const [inpData, setInpData] = useState(
+        {
+            tableName: tableName,
+            data: {
+                colName: "",
+                dataType: "",
+                required: "",
+                primarykey: "",
+            }
+        });
 
     useEffect(() => {
         console.log(tableName);
@@ -28,14 +29,14 @@ export default function AddColumn() {
     }, []);
     function handleChange(e) {
         console.log(e.target.type, e.target.name);
-        let data = inpData;
+        let inputData = inpData;
         if (e.target.type === "checkbox") {
-            data.data[e.target.name] = e.target.checked;
+            inputData.data[e.target.name] = e.target.checked;
         }
         else
-            data.data[e.target.name] = e.target.value;
+            inputData.data[e.target.name] = e.target.value;
 
-        setInpData(data);
+        setInpData(inputData);
 
     }
 

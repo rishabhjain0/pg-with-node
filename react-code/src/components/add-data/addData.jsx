@@ -8,18 +8,28 @@ export default function AddData() {
     const [inpData, setInpData] = useState({});
     useEffect(() => {
         console.log("gello");
+        fetch(`http://localhost:3001/app/gettablecolumns/${tableName}`)
+            .then(res => res.json())
+            .then((result) => {
+                console.log(result.data);
+                if (result.status === "success") {
+                    let data = {};
+                    result.data.rows.forEach((p) => {
+                        console.log(p);
+                        if (p.column_name !== "id")
+                            data[`${p.column_name}`] = "";
+                    })
+                    setInpData(data);
+                    console.log(inpData);
+                }
+            }).catch((err) => console.log(err))
         fetch(`http://localhost:3001/app/gettabledata/${tableName}`,)
             .then(res => res.json())
             .then((result) => {
                 console.log(result);
                 if (result.status === "success") {
                     setTableData(result.data.rows);
-                    let data = {};
-                    Object.entries(result.data.rows[0]).forEach((p) => {
-                        if (p[0] !== "id")
-                            data[p[0]] = "";
-                    })
-                    setInpData(data);
+
                     console.log("hltod");
                 }
                 console.log(tableData);
@@ -58,11 +68,6 @@ export default function AddData() {
         setInpData(data);
         // e.target.value = inpData[e.target.name]
     }
-
-    function setValue() {
-        console.log("hello");
-    }
-
     return (
         <div>
             {
@@ -93,10 +98,17 @@ export default function AddData() {
             }
             {
 
-                tableData[0] ? Object.entries(tableData[0]).map((p) => {
+                inpData ? Object.entries(inpData).map((p) => {
                     return <div>
                         {console.log(inpData)}
-                        {p[0] !== "id" ? <input type="text" name={p[0]} value={inpData[p[1]]} onChange={handleChange} /> : <br />}
+
+                        {p[0] !== "id" ?
+                            <div>
+                                <label>{p[0]}</label>
+                                <input type="text" name={p[0]} placeholder={p[0]} value={inpData[p[1]]} onChange={handleChange} />
+
+                            </div>
+                            : <br />}
                     </div>
                 }) : ""
             }
