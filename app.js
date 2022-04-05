@@ -87,7 +87,7 @@ app.get("/app/gettables", (req, res) => {
 
 })
 
-app.get("/app/gettabledata/tableName", (req, res) => {
+app.get("/app/gettabledata/:tableName", (req, res) => {
 
     let tableName = req.params.tableName;
     const query = {
@@ -95,7 +95,7 @@ app.get("/app/gettabledata/tableName", (req, res) => {
         // rowMode: "array"
     }
     try {
-        client.query(sql, (err, result) => {
+        client.query(query, (err, result) => {
             if (err) {
                 console.log(err);
                 res.json({
@@ -105,6 +105,7 @@ app.get("/app/gettabledata/tableName", (req, res) => {
             else {
                 console.log(result);
                 res.json({
+                    status: "success",
                     data: result,
                 })
 
@@ -193,12 +194,49 @@ app.post("/addcolumn", (req, res) => {
     }
 })
 
-app.post("/update", (req, res) => {
-    let data = req.body.data;
+app.post("/app/insert", (req, res) => {
+    let data = req.body;
     try {
         let attr = "";
-        let sql = `Insert INTO ${data.tableName} values(${data.data.join(",")})`;
+        let values = Object.values(data.data);
+        let value = ``;
+        values.forEach((k) => {
+            value = `${value}'${k}',`
+        })
+        console.log(value);
+        value = value.slice(0, value.length - 1);
+        let keys = Object.keys(data.data);
+        console.log(keys);
+
+        let sql = `Insert INTO ${data.tableName}(${keys.join(",")}) VALUES(${value})`;
         console.log(sql);
+        client.query(sql, (err, result) => {
+            if (err) {
+                console.log(err);
+            }
+            console.log(result);
+            http.get(`http://localhost:3001/app/gettabledata/${data.tableName}`, (resp) => {
+                let data = '';
+
+                resp.on('data', (chunk) => {
+                    data += chunk;
+                });
+                resp.on('end', () => {
+
+                    // Concatinate each chunk of data
+
+                    console.log("heloooooooooooooooooo", data);
+                    res.json({
+                        status: "success",
+                        data: JSON.parse(data)
+                    })
+                })
+            })
+
+            // res.json({
+            //     data: result
+            // })
+        })
 
 
     } catch (error) {
